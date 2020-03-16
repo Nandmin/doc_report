@@ -17,6 +17,7 @@ namespace Report
         }
 
         private int timeLeft;
+        private string PID;
         public int kerdes_sorszam;
         public string k1;
         public string k1_ID;
@@ -112,6 +113,10 @@ namespace Report
             k3_v2 = FormCode.k3V2;
             k3_v3 = FormCode.k3V3;
             k3_helyes = FormCode.k3_heyesValasz;
+
+            displayName = FormCode.ugyintezo;
+            PID = displayName + "_" + k1_ID + k2_ID + k3_ID + DateTime.Now.ToShortDateString().Replace(".", "") + DateTime.Now.ToShortTimeString().Replace(":", "");
+            weblogbaIras();
         }
 
         private void kerdesek_valtasa()
@@ -332,8 +337,8 @@ namespace Report
 
         private void sharePointbaIras()
         {
-            displayName = "Németh András";
-            csoport = "EVO";
+            displayName = FormCode.ugyintezo; // "Németh András";
+            csoport = FormCode.csoport;// "EVO";
 
             sitesWebServiceLists.Lists listService = new sitesWebServiceLists.Lists();
 
@@ -354,6 +359,7 @@ namespace Report
                 batchElement.InnerXml = "<Method ID='4' Cmd='New'>" + "<Field Name='Title'>" + displayName + "</Field>" +
                     "<Field Name='Csoport'>" + csoport + "</Field>" +
                     "<Field Name='KerdesID'>" + k1_ID + "</Field>" +
+                    "<Field Name='PID'>" + PID + "</Field>" +
                     "<Field Name='Adott_valasz'>" + k1_megoldas + "</Field>" +
                     "<Field Name='Helyes_valasz'>" + k1_helyes + "</Field></Method>";
 
@@ -369,6 +375,7 @@ namespace Report
                 batchElement.InnerXml = "<Method ID='4' Cmd='New'>" + "<Field Name='Title'>" + displayName + "</Field>" +
                     "<Field Name='Csoport'>" + csoport + "</Field>" +
                     "<Field Name='KerdesID'>" + k2_ID + "</Field>" +
+                    "<Field Name='PID'>" + PID + "</Field>" +
                     "<Field Name='Adott_valasz'>" + k2_megoldas + "</Field>" +
                     "<Field Name='Helyes_valasz'>" + k2_helyes + "</Field></Method>";
 
@@ -384,6 +391,7 @@ namespace Report
                 batchElement.InnerXml = "<Method ID='4' Cmd='New'>" + "<Field Name='Title'>" + displayName + "</Field>" +
                     "<Field Name='Csoport'>" + csoport + "</Field>" +
                     "<Field Name='KerdesID'>" + k3_ID + "</Field>" +
+                    "<Field Name='PID'>" + PID + "</Field>" +
                     "<Field Name='Adott_valasz'>" + k3_megoldas + "</Field>" +
                     "<Field Name='Helyes_valasz'>" + k3_helyes + "</Field></Method>";
 
@@ -401,6 +409,19 @@ namespace Report
                 DialogResult dr04 = MessageBox.Show("Az eredmények mentési folyamata hibával megszakadt, értesítsd a rendszergazdát!", "", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
 
+            displayName = string.Empty;
+            csoport = string.Empty;
+            k1_ID = string.Empty;
+            k1_megoldas = string.Empty;
+            k1_helyes = string.Empty;
+            k2_ID = string.Empty;
+            k2_megoldas = string.Empty;
+            k2_helyes = string.Empty;
+            k3_ID = string.Empty;
+            k3_megoldas = string.Empty;
+            k3_helyes = string.Empty;
+            
+
         }
 
         private void btn_stop_Click(object sender, EventArgs e)
@@ -412,6 +433,43 @@ namespace Report
                 timer2.Stop();
                 timeLeft = 0;
                 lejartIdo();
+            }
+        }
+
+        private void weblogbaIras()
+        {
+            displayName = FormCode.ugyintezo;
+
+            sitesWebServiceLists.Lists listService = new sitesWebServiceLists.Lists();
+
+            listService.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            listService.Url = "http://teamweb2/sites/TMEK/Manager/_vti_bin/Lists.asmx";
+            System.Xml.XmlNode ndListView = listService.GetListAndView("Manager - WebLog", "");
+            string strListID = ndListView.ChildNodes[0].Attributes["Name"].Value;
+            string strViewID = ndListView.ChildNodes[1].Attributes["Name"].Value;
+
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            System.Xml.XmlElement batchElement = doc.CreateElement("Batch");
+            batchElement.SetAttribute("OnError", "Continue");
+            batchElement.SetAttribute("ListVersion", "1");
+            batchElement.SetAttribute("ViewName", strViewID);
+
+            try
+            {
+                batchElement.InnerXml = "<Method ID='4' Cmd='New'>" + "<Field Name='Title'>" + displayName + "</Field>" +
+                    "<Field Name='PID'>" + PID + "</Field></Method>";
+
+                try
+                {
+                    listService.UpdateListItems(strListID, batchElement);
+                }
+                catch
+                {
+                    //DialogResult dr04 = MessageBox.Show("Az eredmények mentési folyamata hibával megszakadt, értesítsd a rendszergazdát!", "", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                }
+            }
+            catch
+            {
             }
         }
     }

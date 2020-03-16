@@ -79,3 +79,4 @@ C:\Users\NemethA\Documents\InfoPath-projektek\Report\obj\Release\Report.Visszael
 C:\Users\NemethA\Documents\InfoPath-projektek\Report\obj\Debug\Report.csproj.ResolveComReference.cache
 C:\Users\NemethA\Documents\InfoPath-projektek\Report\obj\Release\Report.csproj.ResolveComReference.cache
 C:\Users\NemethA\Documents\InfoPath-projektek\Report\obj\Debug\Report.WebTeszt.resources
+C:\Users\NemethA\Documents\InfoPath-projektek\Report\obj\Release\Report.WebTeszt.resources
